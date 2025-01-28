@@ -78,8 +78,8 @@ li.nav-item > a.nav-link {
   }
 }
 
-/* Header of Index.html */
-.homehead {
+/* Headers of Index.html, About.html, Contact.Html */
+.pagehead {
   position: relative;
   margin-bottom: 3rem;
   padding-top: calc(8rem + 57px);
@@ -89,7 +89,8 @@ li.nav-item > a.nav-link {
   background-size: cover;
   background-attachment: scroll;
 }
-.homehead:before {
+
+.pagehead:before {
   content: "";
   position: absolute;
   top: 0;
@@ -100,16 +101,19 @@ li.nav-item > a.nav-link {
   opacity: 0.5;
 }
 
-.homehead .site-heading {
+.pagehead .site-heading,
+.pagehead .page-heading{
   text-align: center;
   color: #fff;
 }
 
-.homehead .site-heading h1{
+.pagehead .site-heading h1,
+.pagehead .page-heading h1{
   font-size: 3rem;
 }
 
-.homehead .sub-heading {
+.pagehead .site-heading .subheading,
+.pagehead .page-heading .subheading{
   font-size: 1.5rem;
   font-weight: 300;
   font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";

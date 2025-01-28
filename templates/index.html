@@ -1,0 +1,62 @@
+{% include "header.html" %}
+
+<!-- Page Header-->
+<header
+  class="homehead"
+  style="background-image: url('../static/assets/img/home-bg.jpg')"
+>
+  <div class="container position-relative px-4 px-lg-5">
+    <div class="row gx-4 gx-lg-5 justify-content-center">
+      <div class="col-md-10 col-lg-8 col-xl-7">
+        <div class="site-heading">
+          <h1>Informative Blog</h1>
+          <span class="sub-heading">A collection of random informative blogs.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content-->
+<div class="container px-4 px-lg-5">
+  <div class="row gx-4 gx-lg-5 justify-content-center">
+    <div class="col-md-10 col-lg-8 col-xl-7">
+      <!-- Posts preview -->
+      <!-- TODO: Update after adding Post Object -->
+      {% for post in all_posts %}
+        <div class="post-preview">
+          <a href="#">
+            <h2 class="post-title">Post Title</h2>
+            <h3 class="post-subtitle">Post Subtitle</h3>
+          </a>
+          <p class="post-meta">
+            Posted by
+            <a href="#"> Post Author </a>
+            on {{post.date}}
+            <!-- TODO: Add Delete Button -->
+            <a href="#">✘</a>
+          </p>
+        </div>
+        <!-- Divider-->
+        <hr class="my-4" />
+      {% endfor %}
+
+      <!-- New Post -->
+      <!-- TODO: Only show Create Post button if user id is 1 (admin user) -->
+      <div class="d-flex justify-content-end mb-4">
+        <a
+          class="btn btn-primary float-right"
+          href="#"
+          >Create New Post</a
+        >
+      </div>
+
+      <!-- Pager-->
+      <div class="d-flex justify-content-end mb-4">
+        <a class="btn btn-secondary text-uppercase" href="#!">Older Posts →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include "footer.html" %}

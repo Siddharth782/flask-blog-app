@@ -5,7 +5,7 @@ from flask_bootstrap import Bootstrap5
 from dotenv import load_dotenv
 import os
 from flask_ckeditor import CKEditor
-from forms import ContactForm
+from forms import ContactForm, RegisterForm, LoginForm
 
 load_dotenv()
 # ----------- CONSTANTS --------------- #
@@ -39,14 +39,17 @@ app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
 ckeditor = CKEditor(app)
 Bootstrap5(app)
 
+# Route to home page
 @app.route("/")
 def home_page():
     return render_template("index.html")
 
+# Route to about page
 @app.route("/about")
 def about():
     return render_template("about.html")
 
+# Route to contact page
 @app.route("/contact", methods=["GET", "POST"])
 def contact():
 
@@ -63,6 +66,18 @@ def contact():
         return render_template("contact.html", msg_sent=True, form=form)
 
     return render_template("contact.html", msg_sent=False, form=form)
+
+# Route to register page
+@app.route("/register")
+def register():
+    form = RegisterForm()
+    return render_template("register.html", form=form)
+
+# Route to login page
+@app.route("/login")
+def login():
+    form = LoginForm()
+    return render_template("login.html", form=form)
 
 if __name__ == "__main__":
     app.run(debug=True)

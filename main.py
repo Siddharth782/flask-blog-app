@@ -1,11 +1,16 @@
 # ----------- IMPORTS --------------- #
 import smtplib
-from flask import Flask, render_template, request
+from flask import Flask, render_template, url_for, redirect, flash
 from flask_bootstrap import Bootstrap5
 from dotenv import load_dotenv
 import os
 from flask_ckeditor import CKEditor
+from werkzeug.security import generate_password_hash, check_password_hash
 from forms import ContactForm, RegisterForm, LoginForm
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Integer, String, Text
+from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
 
 load_dotenv()
 # ----------- CONSTANTS --------------- #
@@ -39,6 +44,35 @@ app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
 ckeditor = CKEditor(app)
 Bootstrap5(app)
 
+# Create Database
+class Base(DeclarativeBase):
+    pass
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///blog.db"
+db = SQLAlchemy(model_class=Base)
+db.init_app(app)
+
+
+# Configure User Table
+class User(UserMixin, db.Model):
+    __tablename__ = "users"
+    id : Mapped[int] = mapped_column(Integer, primary_key=True)
+    email : Mapped[str] = mapped_column(String(250), unique=True)
+    name : Mapped[str] = mapped_column(String(250), nullable=False)
+    password : Mapped[str] = mapped_column(String(500), nullable=False)
+
+
+with app.app_context():
+    db.create_all()
+
+# Configure Flask Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+# Loading user from DB
+@login_manager.user_loader
+def load_user(user_id):
+    return db.get_or_404(User, user_id)
+
 # Route to home page
 @app.route("/")
 def home_page():
@@ -52,7 +86,6 @@ def about():
 # Route to contact page
 @app.route("/contact", methods=["GET", "POST"])
 def contact():
-
     form = ContactForm()
 
     if form.validate_on_submit():
@@ -68,16 +101,67 @@ def contact():
     return render_template("contact.html", msg_sent=False, form=form)
 
 # Route to register page
-@app.route("/register")
+@app.route("/register", methods=["GET", "POST"])
 def register():
     form = RegisterForm()
+
+    if form.validate_on_submit():
+        check_user = db.session.execute(db.select(User).where(User.email == form.email.data)).scalar()
+
+        if check_user:
+            # User already exists
+            flash("Email is already signed up. Log in instead!")
+            return redirect(url_for('login'))
+
+        hash_and_salted_password = generate_password_hash(
+            form.password.data,
+            method="pbkdf2:sha256",
+            salt_length= 8
+        )
+
+        new_user = User(
+            email = form.email.data,
+            name = form.name.data,
+            password = hash_and_salted_password
+        )
+
+        db.session.add(new_user)
+        db.session.commit()
+        login_user(new_user)
+
+        return redirect(url_for('home_page'))
+
     return render_template("register.html", form=form)
 
 # Route to login page
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
+
+    if form.validate_on_submit():
+
+        user = db.session.execute(db.select(User).where(form.email.data == User.email)).scalar()
+        password = form.password.data
+
+        if not user:
+            # User not found
+            flash("That email id is not registered. Register please")
+            return redirect(url_for('register'))
+        elif not check_password_hash(user.password, password):
+            # Incorrect Password
+            flash("Incorrect Credentials. Try again!")
+            return redirect(url_for('login'))
+        else:
+            login_user(user)
+            return redirect(url_for('home_page'))
+
     return render_template("login.html", form=form)
+
+# Logout method
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect(url_for('home_page'))
 
 if __name__ == "__main__":
     app.run(debug=True)

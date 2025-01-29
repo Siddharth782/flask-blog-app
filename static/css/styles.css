@@ -145,3 +145,14 @@ li.nav-item > a.nav-link {
 .post-meta > a {
   text-decoration: none;
 }
+
+/* Flash Messages in Register.html and Login.html */
+.flash{
+    text-align: center;
+    color: red
+}
+
+label {
+    font-weight: bold;
+    font-size: 1.25rem
+}

@@ -1,15 +1,17 @@
 # ----------- IMPORTS --------------- #
 import smtplib
-from flask import Flask, render_template, url_for, redirect, flash
+from functools import wraps
+from flask import Flask, render_template, url_for, redirect, flash, abort
 from flask_bootstrap import Bootstrap5
 from dotenv import load_dotenv
 import os
 from flask_ckeditor import CKEditor
 from werkzeug.security import generate_password_hash, check_password_hash
-from forms import ContactForm, RegisterForm, LoginForm
+from forms import ContactForm, RegisterForm, LoginForm, NewPostForm
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Integer, String, Text
+from datetime import datetime
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
 
 load_dotenv()
@@ -17,7 +19,7 @@ load_dotenv()
 MY_EMAIL = os.getenv("MY_EMAIL")
 APP_PASSWORD = os.getenv("APP_PASSWORD")
 
-# ----------- FUNCTIONS --------------- #
+# ----------- FUNCTIONS & DECORATORS --------------- #
 def send_email(name, email, phone, message):
 
     with smtplib.SMTP("smtp.gmail.com") as connection:
@@ -37,6 +39,15 @@ def send_email(name, email, phone, message):
             to_addrs=MY_EMAIL,
             msg=f"Subject:Message from your blog website.\n\n{name} contacted you to say..\n  \n{message}\n  \nYou can contact them on his email {email} or his phone {phone}"
         )
+
+def admin_only(func):
+    @wraps(func)
+    def wrapper_func(*args, **kwargs):
+        if current_user.id != 1:
+            return abort(403)
+        return func(*args, **kwargs)
+
+    return wrapper_func
 
 # ----------- INITIALISATIONS --------------- #
 app = Flask(__name__)
@@ -60,6 +71,16 @@ class User(UserMixin, db.Model):
     name : Mapped[str] = mapped_column(String(250), nullable=False)
     password : Mapped[str] = mapped_column(String(500), nullable=False)
 
+# Configure Blog Post Table
+class BlogPost(db.Model):
+    __tablename__ = "blog_posts"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    title: Mapped[str] = mapped_column(String(200), unique=True, nullable=False)
+    subtitle: Mapped[str] = mapped_column(String(300), nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    img_url: Mapped[str] = mapped_column(String(250), nullable=False)
+    date: Mapped[str] = mapped_column(String(250), nullable=False)
+    author: Mapped[str] = mapped_column(String(250), nullable=False)
 
 with app.app_context():
     db.create_all()
@@ -76,7 +97,9 @@ def load_user(user_id):
 # Route to home page
 @app.route("/")
 def home_page():
-    return render_template("index.html")
+    all_posts = db.session.execute(db.select(BlogPost)).scalars().all()
+
+    return render_template("index.html", posts = all_posts)
 
 # Route to about page
 @app.route("/about")
@@ -162,6 +185,69 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('home_page'))
+
+# Display selected post
+@app.route("/post/<int:post_id>")
+def post(post_id):
+    selected_post = db.get_or_404(BlogPost, post_id)
+
+    return render_template("post.html", post=selected_post)
+
+# Method to create a new post
+@app.route("/new-post", methods=["POST", "GET"])
+@admin_only
+def create_post():
+    form = NewPostForm()
+
+    if form.validate_on_submit():
+
+        new_blog = BlogPost(
+            title = form.title.data,
+            subtitle = form.subtitle.data,
+            body = form.body.data,
+            img_url = form.img_url.data,
+            date = datetime.now().strftime("%d %B, %Y"),
+            author = current_user.name
+        )
+
+        db.session.add(new_blog)
+        db.session.commit()
+
+        return redirect(url_for('home_page'))
+
+    return render_template("new-post.html", form=form)
+
+@app.route("/edit-post/<int:post_id>", methods=["GET", "POST"])
+@admin_only
+def edit_post(post_id):
+
+    post_to_edit = db.get_or_404(BlogPost, post_id)
+
+    edit_post_form = NewPostForm(
+        title = post_to_edit.title,
+        subtitle = post_to_edit.subtitle,
+        body = post_to_edit.body,
+        img_url = post_to_edit.img_url,
+    )
+
+    if edit_post_form.validate_on_submit():
+        post_to_edit.title = edit_post_form.title.data
+        post_to_edit.subtitle = edit_post_form.subtitle.data
+        post_to_edit.body = edit_post_form.body.data
+        post_to_edit.img_url = edit_post_form.img_url.data
+        db.session.commit()
+
+        return redirect(url_for("post", post_id=post_id))
+    return render_template("new-post.html", form=edit_post_form, is_edit=True)
+
+@app.route("/delete-post/<int:post_id>")
+@admin_only
+def delete_post(post_id):
+    post_to_delete = db.get_or_404(BlogPost, post_id)
+    db.session.delete(post_to_delete)
+    db.session.commit()
+    return redirect(url_for('home_page'))
+
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -122,9 +122,9 @@ li.nav-item > a.nav-link {
 /* Content of Index.html */
 .post-preview > a {
   color: #212529;
+  text-decoration: none
 }
 .post-preview > a:focus, .post-preview > a:hover {
-  text-decoration: none;
   color: #0085A1;
 }
 .post-title {
@@ -137,13 +137,41 @@ li.nav-item > a.nav-link {
   margin-bottom: 0.625rem;
 }
 .post-meta {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-style: italic;
   margin-top: 0;
   color: #6c757d;
 }
 .post-meta > a {
   text-decoration: none;
+}
+
+/* For Displaying posts in post.hyml*/
+.post-heading{
+  color: #fff;
+}
+
+.post-heading h1{
+  font-size: 2.5rem
+}
+
+.post-heading .subheading{
+  font-size: 1.375rem;
+  margin-top: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.post-heading .meta{
+  font-size: 1rem;
+  font-weight: 300;
+  margin-bottom: 0.625rem
+  font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.post-heading .meta > a{
+  text-decoration: none;
+  font-style: italic;
+  color: #fff
 }
 
 /* Flash Messages in Register.html and Login.html */

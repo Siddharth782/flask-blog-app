@@ -14,7 +14,7 @@
           <h2 class="subheading">{{ post.subtitle }}</h2>
           <span class="meta"
             >Posted by
-            <a href="#">{{ post.author }}</a>
+            <a href="#">{{ post.author.name }}</a>
             on {{ post.date }}
           </span>
         </div>
@@ -39,9 +39,40 @@
               >
             </div>
         {% endif %}
+
+        <div class="comment-section">
+            {% if current_user.is_authenticated: %}
+                {{ render_form(form, novalidate=True ) }}
+            {% else: %}
+                <div>
+                    <p class="no-comment">You have to login to comment</p>
+                </div>
+            {% endif %}
+
+            <div class="comments">
+                <p>Comments</p>
+                <ul class="commentList">
+                    {% for comment in post.comments: %}
+                      <li>
+                        <div class="commenterImage">
+                          <img
+                            src="{{ gravatar_url(comment.comment_author.email) }}"
+                          />
+                        </div>
+                        <div class="commentText">
+                            <p> {{comment.comment|safe}} </p>
+                          <span class="sub-text">{{comment.comment_author.name}}</span>
+                        </div>
+                      </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+        </div>
       </div>
     </div>
   </div>
 </article>
-
+{{ ckeditor.load() }}
+{{ ckeditor.config(name='comment_text') }}
 {% include "footer.html" %}

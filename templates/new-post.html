@@ -29,13 +29,12 @@
   <div class="container">
     <div class="row">
       <div class="col-lg-8 col-md-10 mx-auto">
-        {{ ckeditor.load() }}
-        {{ ckeditor.config(name='body') }}
         {{ render_form(form, novalidate=True) }}
       </div>
     </div>
   </div>
 </main>
-
+{{ ckeditor.load() }}
+{{ ckeditor.config(name='body') }}
 {% include "footer.html" %}
 {% endblock %}

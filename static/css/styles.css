@@ -146,6 +146,11 @@ li.nav-item > a.nav-link {
   text-decoration: none;
 }
 
+.no-post-message{
+  font-size: 1.25rem;
+  margin: 1.25rem 0;
+}
+
 /* For Displaying posts in post.hyml*/
 .post-heading{
   color: #fff;
@@ -183,4 +188,58 @@ li.nav-item > a.nav-link {
 label {
     font-weight: bold;
     font-size: 1.25rem
+}
+
+/* Comments */
+.comment-section {
+  padding-top: 20px;
+  margin-top: 5rem;
+}
+.comments{
+  margin-top: 2rem;
+}
+.comments > p{
+  font-weight: 600;
+  font-size: 1.25rem;
+  margin-bottom: 0
+}
+.commentList {
+  padding:0;
+  overflow:auto;
+}
+.commentList li {
+  list-style:none;
+  margin:10px 0 0;
+}
+.commentList li > div {
+  display:table-cell;
+}
+.commentList li > div > p {
+  font-weight:500;
+  font-size:1.125rem
+}
+.commenterImage {
+  width:30px;
+  margin-right:5px;
+  height:100%;
+  float:left;
+}
+.commenterImage img {
+  width:100%;
+  border-radius:50%;
+}
+.commentText p {
+  margin:0;
+}
+
+.sub-text {
+    color:#4d4d4d;
+    font-family:verdana;
+    font-size:13px;
+}
+
+.no-comment{
+    font-size: 1rem;
+    text-align: center;
+    color:#4d4d4d;
 }
